@@ -2,7 +2,7 @@
   "name": "hookshot-server",
   "version": "1.0.0",
   "description": "Web server providing machine information.",
-  "license": "ISC",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Cygnut/hookshot-server.git"
