@@ -1,0 +1,35 @@
+{
+  "name": "hookshot-server",
+  "version": "1.0.0",
+  "description": "Web server providing machine information.",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cygnut/hookshot-server.git"
+  },
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "web"
+  ],
+  "author": "cygnut",
+  "dependencies": {
+    "arrify": "^1.0.1",
+    "async": "^2.1.2",
+    "commander": "^2.9.0",
+    "desktop-screenshot": "^0.1.1",
+    "express": "^4.14.0",
+    "is-linux": "^1.0.1",
+    "is-osx": "^1.0.2",
+    "is-windows": "^0.2.0",
+    "moment": "^2.15.0",
+    "neat-csv": "^2.1.0",
+    "network-address": "^1.1.0",
+    "node-nircmd": "^1.0.5",
+    "pug": "^2.0.0-beta6",
+    "sec": "^1.0.0",
+    "winston": "^2.2.0"
+  }
+}
