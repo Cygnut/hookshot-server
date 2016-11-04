@@ -26,15 +26,17 @@ app.set('views', './views');
 app.set('view engine', 'pug');
 
 // Create controllers:
-var controllers = {};
-controllers.ping = new (require('./controllers/PingController'))();
-controllers.screen = new (require('./controllers/ScreenController'))(path.join(__dirname, 'temp', 'desktop.png')),
-controllers.os = new (require('./controllers/OSController'))(3000),
-controllers.service = new (require('./controllers/ServiceController'))(3000, pkg.version),
-controllers.processes = new (require('./controllers/ProcessController'))(3000);
+var controllers = {
+	ping: new (require('./controllers/PingController'))(),
+	screen: new (require('./controllers/ScreenController'))(path.join(__dirname, 'temp', 'desktop.png')),
+	os: new (require('./controllers/OSController'))(3000),
+	service: new (require('./controllers/ServiceController'))(3000, pkg.version),
+	processes: new (require('./controllers/ProcessController'))(3000),
+	fs: new (require('./controllers/FilesystemController'))(),
+	api: new (require('./controllers/ApiController'))(app)
+};
+// We gotta do this one last due to controller dependency!
 controllers.dataset = new (require('./controllers/DatasetController'))(3000, 500, controllers.os, controllers.service);
-controllers.fs = new (require('./controllers/FilesystemController'))();
-controllers.api = new (require('./controllers/ApiController'))(app);
 
 // Register controllers:
 Object.keys(controllers).forEach(function(key) {
