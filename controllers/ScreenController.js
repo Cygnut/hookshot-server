@@ -41,41 +41,45 @@ function ScreenController(imagePath, period)
 	setInterval(this.updateScreenshot.bind(this), this.period);
 }
 
-ScreenController.prototype.register = function(app)
-{
-	app.get('/screen/now', this.now.bind(this));
-	app.get('/screen/info', this.info.bind(this));
-}
-
-ScreenController.prototype.getInfo = function()
-{
-	return {
-		imagePath: this.imagePath,
-		whenCaptured: this.whenCaptured,
-		period: this.period
-	}
-}
-
-ScreenController.prototype.now = function(req, res)
-{
-	res.sendFile(this.getInfo().imagePath, null, (err) => {
-		if (err)
-		{
-			log.error('Failed to send screenshot with error %s', err);
-			res.status(err.status);
-		}
-		return res.end();
-	});
-}
-
-ScreenController.prototype.info = function(req, res)
-{
-	var i = this.getInfo();
+(function() {
 	
-	res.json({
-		whenCaptured: i.whenCaptured,
-		period: i.period
-	});
-}
+	this.register = function(app)
+	{
+		app.get('/screen/now', this.now.bind(this));
+		app.get('/screen/info', this.info.bind(this));
+	}
+	
+	this.getInfo = function()
+	{
+		return {
+			imagePath: this.imagePath,
+			whenCaptured: this.whenCaptured,
+			period: this.period
+		}
+	}
+	
+	this.now = function(req, res)
+	{
+		res.sendFile(this.getInfo().imagePath, null, (err) => {
+			if (err)
+			{
+				log.error('Failed to send screenshot with error %s', err);
+				res.status(err.status);
+			}
+			return res.end();
+		});
+	}
+	
+	this.info = function(req, res)
+	{
+		var i = this.getInfo();
+		
+		res.json({
+			whenCaptured: i.whenCaptured,
+			period: i.period
+		});
+	}
+	
+}).call(ScreenController.prototype);
 
 module.exports = ScreenController;

@@ -30,42 +30,46 @@ function ServiceController(refreshPeriod, version)
 		});
 }
 
-ServiceController.prototype.register = function(app)
-{
-	app.get('/service/schema', this.schema.bind(this));
-	app.get('/service/query', this.query.bind(this));
-}
-
-ServiceController.prototype.getFields = function()
-{
-	return this.map.getNames();
-}
-
-ServiceController.prototype.getFieldValue = function(field)
-{
-	return this.map.getValue(field).value;
-}
-
-ServiceController.prototype.getFieldValues = function(fields)
-{
-	if (!fields || fields.length == 0) fields = this.getFields();
-	return this.map.getValues(fields);
-}
-
-ServiceController.prototype.schema = function(req, res) 
-{
-	res.json({
-		fields: this.getFields()
-	});
-}
-
-ServiceController.prototype.query = function(req, res) 
-{
-	res.json({
-		result: this.getFieldValues(
-			arrify(req.query.field)
-			)
-	});
-}
+(function() {
+	
+	this.register = function(app)
+	{
+		app.get('/service/schema', this.schema.bind(this));
+		app.get('/service/query', this.query.bind(this));
+	}
+	
+	this.getFields = function()
+	{
+		return this.map.getNames();
+	}
+	
+	this.getFieldValue = function(field)
+	{
+		return this.map.getValue(field).value;
+	}
+	
+	this.getFieldValues = function(fields)
+	{
+		if (!fields || fields.length == 0) fields = this.getFields();
+		return this.map.getValues(fields);
+	}
+	
+	this.schema = function(req, res) 
+	{
+		res.json({
+			fields: this.getFields()
+		});
+	}
+	
+	this.query = function(req, res) 
+	{
+		res.json({
+			result: this.getFieldValues(
+				arrify(req.query.field)
+				)
+		});
+	}
+	
+}).call(ServiceController.prototype);
 
 module.exports = ServiceController;

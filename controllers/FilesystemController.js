@@ -68,150 +68,154 @@ function FilesystemController()
 	this.cachedDrives = null;
 }
 
-FilesystemController.prototype.register = function(app)
-{
-	app.get('/filesystem/drives', this.drives.bind(this));
-	app.get('/filesystem/files', this.files.bind(this));
-	app.post('/filesystem/files/run', this.run.bind(this));
-}
-
-/*
-	next = function(err, drives)
-*/
-function getDrivesResult(next)
-{
-	drives(
-		[ 'DeviceID', 'VolumeName', 'Name' ], 
-		function(err, result) 
-		{
-			if (err)
-				return next(err, null);
-			
-			return next(null, 
-				{
-					drives: result.map(
-						function(r) 
-						{
-							return { 
-								name: r.Name, 
-								volumeName: r.VolumeName, 
-							};
-						})
-				});
-		});
-}
-
-FilesystemController.prototype.drives = function(req, res)
-{
-	if (!this.cachedDrives)
+(function() {
+	
+	this.register = function(app)
 	{
-		getDrivesResult(function(err, drives) {
-			if (err)
-			{
-				res.status(500).json({});
-				return log.warn(err);
-			}
-			
-			this.cachedDrives = drives;
-			
-			var names = this.cachedDrives.drives.map(function(d) { return d.name; });
-			log.info(`FilesystemController found drives ${names}.`);
-			
-			return res.json(this.cachedDrives);
-		}.bind(this));
+		app.get('/filesystem/drives', this.drives.bind(this));
+		app.get('/filesystem/files', this.files.bind(this));
+		app.post('/filesystem/files/run', this.run.bind(this));
 	}
-	else return res.json(this.cachedDrives);
-}
-
-function createFilesResult(files)
-{
-	return { files: files || [] };
-}
-
-FilesystemController.prototype.files = function(req, res)
-{
-	var dir = req.query.path || '';
-	fs.readdir(dir, function(err, files)
+	
+	/*
+		next = function(err, drives)
+	*/
+	function getDrivesResult(next)
 	{
-		if (err)
-		{
-			log.warn(`Failed to get directory information for ${dir} with error ${err}`);
-			return res.status(500).json(createFilesResult(null));
-		}
-		
-		async.map(
-			files, 
-			// Get stats on each directory entry in parallel.
-			function(file, callback) {
-				fs.stat(path.join(dir, file), function(er, stats) {
-					callback(null, { 
-						file: file,
-						stats: er ? null : stats	// Trap errors (instead passing null stats)
-					});
-				});
-			},
-			// Callback called when all items processed.
-			function (er, results) {
+		drives(
+			[ 'DeviceID', 'VolumeName', 'Name' ], 
+			function(err, result) 
+			{
+				if (err)
+					return next(err, null);
 				
-				if (er)
+				return next(null, 
+					{
+						drives: result.map(
+							function(r) 
+							{
+								return { 
+									name: r.Name, 
+									volumeName: r.VolumeName, 
+								};
+							})
+					});
+			});
+	}
+	
+	this.drives = function(req, res)
+	{
+		if (!this.cachedDrives)
+		{
+			getDrivesResult(function(err, drives) {
+				if (err)
 				{
-					log.warn(`Failed to get directory stats for ${dir} with error ${er}`);
-					return res.status(500).json(createFilesResult(null));
+					res.status(500).json({});
+					return log.warn(err);
 				}
 				
-				var data = results.map(function(r) {
-					var item = {
-						name: r.file,
-						path: path.join(dir, r.file),
-						ext: null,
-						type: null
-					}
-					
-					if (r.stats)
-					{
-						var isDir = r.stats.isDirectory();
-						item.ext = isDir ? null : path.extname(r.file);
-						item.type = isDir ? 'dir' : 'file';
-					}
-					
-					return item;
-				});
+				this.cachedDrives = drives;
 				
-				return res.json(createFilesResult(data));
-			});
-	});
-}
-
-FilesystemController.prototype.run = function(req, res)
-{
-	var args = req.query.args || [];
+				var names = this.cachedDrives.drives.map(function(d) { return d.name; });
+				log.info(`FilesystemController found drives ${names}.`);
+				
+				return res.json(this.cachedDrives);
+			}.bind(this));
+		}
+		else return res.json(this.cachedDrives);
+	}
 	
-	var p = req.query.path;	
-	var cwd = path.dirname(p);
-	var file = path.basename(p);
+	function createFilesResult(files)
+	{
+		return { files: files || [] };
+	}
 	
-	log.info(`Starting user-generated command ${p} with args ${args.toString()}.`);
-	
-	var child = cp.exec(
-		file, 
-		{ 
-			detached: true,
-			cwd: cwd 
-		}, 
-		function(error, stdout, stderr) 
+	this.files = function(req, res)
+	{
+		var dir = req.query.path || '';
+		fs.readdir(dir, function(err, files)
 		{
-			if (error || stderr) 
-				return log.warn(`User-generated command ${p} with args ${args.toString()} failed with error: ${error}, stderr: ${stderr}`);
+			if (err)
+			{
+				log.warn(`Failed to get directory information for ${dir} with error ${err}`);
+				return res.status(500).json(createFilesResult(null));
+			}
 			
-			log.info(`User-generated command ${p} with args ${args.toString()} terminated.`);
+			async.map(
+				files, 
+				// Get stats on each directory entry in parallel.
+				function(file, callback) {
+					fs.stat(path.join(dir, file), function(er, stats) {
+						callback(null, { 
+							file: file,
+							stats: er ? null : stats	// Trap errors (instead passing null stats)
+						});
+					});
+				},
+				// Callback called when all items processed.
+				function (er, results) {
+					
+					if (er)
+					{
+						log.warn(`Failed to get directory stats for ${dir} with error ${er}`);
+						return res.status(500).json(createFilesResult(null));
+					}
+					
+					var data = results.map(function(r) {
+						var item = {
+							name: r.file,
+							path: path.join(dir, r.file),
+							ext: null,
+							type: null
+						}
+						
+						if (r.stats)
+						{
+							var isDir = r.stats.isDirectory();
+							item.ext = isDir ? null : path.extname(r.file);
+							item.type = isDir ? 'dir' : 'file';
+						}
+						
+						return item;
+					});
+					
+					return res.json(createFilesResult(data));
+				});
 		});
-	// By default, this app will wait for this child process to end, and maintain a link to it (which 
-	// may get unruly when it comes to memory etc). To avoid this, explicitly unref() the child so
-	// it can live free, detached from its parent.
-	// https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback
-	child.unref();
+	}
 	
-	return res.json({ });
-}
+	this.run = function(req, res)
+	{
+		var args = req.query.args || [];
+		
+		var p = req.query.path;	
+		var cwd = path.dirname(p);
+		var file = path.basename(p);
+		
+		log.info(`Starting user-generated command ${p} with args ${args.toString()}.`);
+		
+		var child = cp.exec(
+			file, 
+			{ 
+				detached: true,
+				cwd: cwd 
+			}, 
+			function(error, stdout, stderr) 
+			{
+				if (error || stderr) 
+					return log.warn(`User-generated command ${p} with args ${args.toString()} failed with error: ${error}, stderr: ${stderr}`);
+				
+				log.info(`User-generated command ${p} with args ${args.toString()} terminated.`);
+			});
+		// By default, this app will wait for this child process to end, and maintain a link to it (which 
+		// may get unruly when it comes to memory etc). To avoid this, explicitly unref() the child so
+		// it can live free, detached from its parent.
+		// https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback
+		child.unref();
+		
+		return res.json({ });
+	}
+	
+}).call(FilesystemController.prototype);
 
 module.exports = FilesystemController;

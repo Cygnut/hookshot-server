@@ -24,24 +24,28 @@ function DatasetController(defaultPeriod, defaultLimit, os, service)
 		sampler: () => service.getFieldValue('memory').heapUsed });
 }
 
-DatasetController.prototype.register = function(app)
-{
-	app.get('/datasets/schema', this.schema.bind(this));
-	app.get('/datasets/dataset/:datasetName', this.dataset.bind(this));
-}
-
-DatasetController.prototype.schema = function(req, res)
-{
-	res.json({
-		datasets: this.datasets.getDatasetConfigs(),
-	});
-}
-
-DatasetController.prototype.dataset = function(req, res)
-{
-	res.json({
-		dataset: this.datasets.getDatasetValues(req.params.datasetName, req.query.from, req.query.to)
-	});
-}
+(function() {
+	
+	this.register = function(app)
+	{
+		app.get('/datasets/schema', this.schema.bind(this));
+		app.get('/datasets/dataset/:datasetName', this.dataset.bind(this));
+	}
+	
+	this.schema = function(req, res)
+	{
+		res.json({
+			datasets: this.datasets.getDatasetConfigs(),
+		});
+	}
+	
+	this.dataset = function(req, res)
+	{
+		res.json({
+			dataset: this.datasets.getDatasetValues(req.params.datasetName, req.query.from, req.query.to)
+		});
+	}
+	
+}).call(DatasetController.prototype);
 
 module.exports = DatasetController;
