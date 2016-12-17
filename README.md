@@ -117,42 +117,87 @@ Execute the specified program with given arguments.
 Play a beep with specified properties on the host.
 
 ### POST /os/speak
-text
-rate
-volume
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| text | Query | The text to speak. |
+| rate | Query | The rate to speak at. |
+| volume | Query | The volume to speak at. |
+
+Say a specified phrase on the device.
 
 ### POST /os/cdrom
-action - 'open'/'close' 
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| action | Query | Must be either 'open' or 'close'. |
+
+Open or close the CD drive on the device.
 
 ### POST '/os/monitor'
-action - 'on'/'off'
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| action | Query | Must be either 'on' or 'off' |
+
+Turn the monitor on or off.
 
 ### POST '/os/changesysvolume'
-volumeChange 
-component 
-device
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| volumeChange | Query | The numeric volume delta to change by. |
+| component | Query | The component to change, if required. |
+| deviceIndex | Query | The specific device index, if required. |
+
+Increment/Decrement the overall system volume level.
 
 ### POST /os/mutesysvolume
-action - '1'/'0' 
-component
-deviceIndex
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| action | Query | Must be either mute = '1' or unmute = '0'. |
+| component | Query | The component to change, if required. |
+| deviceIndex | Query | The specific device index, if required. |
+
+Mute the overall system volume level.
 
 ### POST /os/changeappvolume
-process
-volumeLevel 
-deviceIndex
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| process | Query | The process image name or pid. |
+| volumeLevel | Query | The numeric volume delta to change by. |
+| deviceIndex | Query | The specific device index, if required. |
+
+Increment/Decrement a specific application's volume level.
 
 ### POST /os/muteappvolume
-process
-action - '1'/'0'
-deviceIndex
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| process | Query | The process image name or pid. |
+| action | Query | Must be either mute = '1' or unmute '0'. |
+| deviceIndex | Query | The specific device index, if required. |
+
+Mute a specific application.
 
 ### POST /os/setsysvolume 
-volumeLevel
-component
-deviceIndex
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| volumeLevel | Query | The absolute numeric volume. |
+| component | Query | The component to change, if required. |
+| deviceIndex | Query | The specific device index, if required. |
+
+Set the overall system volume to a specific level.
 
 ### POST os/setappvolume
-process, 
-volumeLevel, 
-deviceIndex
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| process | Query | The process image name or pid. | 
+| volumeLevel | Query | The absolute numeric volume. | 
+| deviceIndex | Query | The specific device index, if required. |
+
+Set a specific application volume to a specific level.
