@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<!-- https://css-tricks.com/specifics-on-css-specificity/ -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/w3.css">
+	<style></style>
+	<script>
+	function openSidebar() {
+		$("#sidenav").css("display", "block");
+		//document.getElementById("sidenav").style.display = "block";
+	}
+	function closeSidebar() {
+		$("#sidenav").css("display", "none");
+		//document.getElementById("sidenav").style.display = "none";
+	}
+	</script>
+</head>
+<body>
+
+  <!-- 
+  TODO: 
+  
+  screen.html
+  os.html
+  service.html
+  processes.html
+  files.html
+  performance.html
+  utilities.html
+	System Volume
+	Beep
+	Speak
+	CD Drive
+	Monitor
+	Hibernate
+	Power Off 
+	
+  Implement pages.
+  Maybe embolden menu link which we're currently sat on.
+  Put some content on index.html.
+  -->
+
+  <nav class="w3-sidenav w3-top w3-card-2" style="width:200px;display:none;z-index:2" id="sidenav">
+	<span onclick="closeSidebar()" style="margin-right: 10px;" class="w3-closenav w3-right w3-xlarge">x</span>
+	<br/>
+	<br/>
+	<a href="index.html">Home</a>
+	<a href="screen.html">Screen</a>
+	<a href="os.html">OS</a>
+	<a href="service.html">Service</a>
+	<a href="processes.html">Processes</a>
+	<a href="files.html">File Browser</a>
+	<a href="performance.html">Performance</a>
+	<a href="utilities.html">Utilities</a>
+  </nav>
+  
+  <header class="w3-top w3-container w3-blue">
+    <h1>
+	<i class="w3-opennav fa fa-bars" onclick="openSidebar()"></i>
+	Hookshot
+	</h1>
+  </header>
+</body>
+</html>
