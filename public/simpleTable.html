@@ -4,6 +4,7 @@
 	
 	
 	<script src="vendor/jquery-3.1.1.min.js"></script>
+	<script src="js/common.js"></script>
 	<script src="js/hookshot-client.js"></script>
 	
 	<link rel="stylesheet" href="vendor/w3.css">
@@ -69,21 +70,13 @@ function updateTable(source)
 			// Show the alert panel if there's been an error.
 			if (!$("#error").length)
 			{
-				$("#data-table").before(
-					"<div id='error' class='w3-panel w3-red'>" +
-					"    <span onclick='this.parentElement.style.display='none'' class='w3-closebtn'>&times;</span>" +
-					"    <h3>Error</h3>" + 
-					"    <p>Failed to get " + source + " information.</p>" + 
-					"</div>");
+				$("#data-table")
+					.before(createErrorPanelHtml("error", "Error", "Failed to get " + source + " information."));
 			}
 		}
 		else
 		{
-			// Clear out any displayed errors now things are good.
-			// It's good to do a fade so that the user can track what's going on.
-			$("#error").fadeOut(300, function() { 
-				$(this).remove(); 
-			});
+			fadeRemoveErrorPanel("error");
 			
 			var ignoredFields = getIgnoredFields(source);
 			

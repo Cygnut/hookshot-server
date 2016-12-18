@@ -20,8 +20,10 @@ var HookshotClient =
 	},
 	
 	_post: function(cb, url, data) {
+		var urlString = url + (data ? "?" + data : "");
+		
 		$.ajax({
-			url: url,
+			url: urlString,
 			processData: false,	// don't turn data into a query string put on the url.
 			type: "POST",
 			data: data
@@ -151,7 +153,7 @@ var HookshotClient =
 	
 	monitor: function(cb, on) {
 		this._post(cb, '/os/monitor', $.param({ 
-			action: os ? 'on' : 'off' 
+			action: on ? 'on' : 'off' 
 		}));
 	},
 	
@@ -163,7 +165,7 @@ var HookshotClient =
 		}));
 	},
 	
-	muteSystemVolume: function(mute, component, device) {
+	muteSystemVolume: function(cb, mute, component, device) {
 		this._post(cb, '/os/mutesysvolume', $.param({ 
 			action: mute ? '1' : '0', 
 			component: component, 
@@ -171,7 +173,7 @@ var HookshotClient =
 		}));
 	},
 	
-	changeAppVolume: function(process, volumeLevel, device) {
+	changeAppVolume: function(cb, process, volumeLevel, device) {
 		this._post(cb, '/os/changeappvolume', $.param({ 
 			process: process, 
 			volumeLevel: volumeLevel, 
@@ -179,7 +181,7 @@ var HookshotClient =
 		}));
 	},
 	
-	muteAppVolume: function(process, mute, device) {
+	muteAppVolume: function(cb, process, mute, device) {
 		this._post(cb, '/os/muteappvolume', $.param({ 
 			process: process, 
 			action: mute ? '1' : '0', 
@@ -187,7 +189,7 @@ var HookshotClient =
 		}));
 	},
 	
-	setSystemVolume: function(volumeLevel, component, device) {
+	setSystemVolume: function(cb, volumeLevel, component, device) {
 		this._post(cb, '/os/setsysvolume', $.param({ 
 			volumeLevel: volumeLevel, 
 			component: component, 
@@ -195,7 +197,7 @@ var HookshotClient =
 		}));
 	},
 	
-	setAppVolume: function(process, volumeLevel, device) {
+	setAppVolume: function(cb, process, volumeLevel, device) {
 		this._post(cb, 'os/setappvolume', $.param({ 
 			process: process, 
 			volumeLevel: volumeLevel, 

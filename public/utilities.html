@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	
+	<script src="vendor/jquery-3.1.1.min.js"></script>
+	<script src="js/hookshot-client.js"></script>
+	<script src="js/common.js"></script>
+	
+	<link rel="stylesheet" href="vendor/w3.css">
+	<link rel="stylesheet" href="css/common.css">
+	
+	<title>Hookshot | Utilities</title>
+	
+	<meta charset="UTF-8">
+	<meta name="description" content="Remote device administration and diagnostics.">
+	<meta name="keywords" content="Remote Access, Administration, Diagnostics">
+	<meta name="author" content="Cygnut">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+<style>
+form input,p , h3, h4, h5 {
+	margin-left: 10px;
+}
+</style>
+<script>
+
+function appendError(id, text) {
+	// Only permit *one* error provided by a given command.
+	if (!$("#" + id).length)
+		$("#errors").append(createErrorPanelHtml(id, "Error", text));
+}
+
+function sleep() {
+	if (!confirm("Really put the device to sleep?"))
+		return;
+	
+	HookshotClient.powerOff(function(err) {
+		if (err)
+			appendError("sleepError", "Failed to sleep device.");
+	});
+}
+
+function powerOff() {
+	if (!confirm("Really turn off the device?"))
+		return;
+	
+	HookshotClient.powerOff(function(err) {
+		if (err)
+			appendError("powerOffError", "Failed to power off.");
+	});
+}
+
+function beep() {
+	HookshotClient.beep(function(err) {
+		if (err)
+			appendError("beepError", "Failed to beep on device.");
+	}, 
+	$("#beep-frequency").val(),
+	$("#beep-duration").val()
+	);
+}
+
+function speak()
+{
+	HookshotClient.speak(function(err) {
+		if (err)
+			appendError("speakError", "Failed to speak on device.");
+	}, 
+	$("#speak-text").val(), 
+	$("#speak-rate").val(), 
+	$("#speak-volume").val()
+	);
+	
+	return false;
+}
+
+function cd(open)
+{
+	HookshotClient.cdDrive(function(err) {
+		if (err)
+			appendError("cdError", "Failed to " + open ? "open" : "close" + " device's CD drive.");
+	},
+	open);
+}
+
+function monitor(on)
+{
+	HookshotClient.monitor(function(err) {
+		if (err)
+			appendError("monitorError", "Failed to turn the device's monitor " + on ? "on" : "off" + ".");
+	},
+	on);
+}
+
+function sysvol()
+{
+	HookshotClient.setSystemVolume(function(err) {
+		if (err)
+			appendError("sysvolError", "Failed to set the system volume.");
+	},
+	$("#sysvol-volume").val()
+	);
+}
+
+</script>
+</head>
+<body>
+
+<header class="header w3-top w3-container w3-blue">
+	<h1>Hookshot | Utilities</h1>
+</header>
+
+<article>
+
+<section id="errors">
+</section>
+
+<section>
+	<h2>Power Options</h2>
+	
+	<h5>Put the device to sleep.</h5>
+	<!-- Don't use input type submit for the button as this will submit the form and scroll the page. Instead, just use type button with an onclick event, dog -->
+	<form>
+		<input type="button" onclick="sleep()" class="w3-btn" value="Sleep"></button>
+	</form>
+	<br/>
+	<h5>Turn off the device.</h5>
+	<form>
+		<input type="button" onclick="powerOff()" class="w3-btn" value="Power Off"></button>
+	</form>
+</section>
+
+<section>
+	<h2>Sound</h2>
+	
+	<h5>Change the system volume.</h5>
+	<form>
+		<p>Volume</p>
+		<input type="number" id="sysvol-volume" min="1" max="50000" value="1000"></input><br/>
+		<br/>
+		<input class="w3-btn" type="button" onclick="sysvol()" value="Set System Volume"></input>
+	</form>
+	<br/>
+	<br/>
+	<h5>Instruct the device to make a beep noise.</h5>
+	<form>
+		<p>Frequency</p>
+		<input type="number" id="beep-frequency" min="1" max="50000" value="1000"></input><br/>
+		<p>Duration</p>
+		<input type="number" id="beep-duration" min="1" max="50000" value="3000"></input><br/>
+		<br/>
+		<input class="w3-btn" type="button" onclick="beep()" value="Beep"></input>
+	</form>
+	<br/>
+	<br/>
+	<h5>Instruct the device to speak.</h5>
+	<form>
+		<p>Text</p>
+		<input type="text" id="speak-text" value="Hello!"></input><br/>
+		<p>Rate</p>
+		<input type="number" id="speak-rate" min="1" max="5" value="3"></input><br/>
+		<p>Volume</p>
+		<input type="number" id="speak-volume" min="1" max="5" value="3"></input><br/>
+		<br/>
+		<input class="w3-btn" type="button" onclick="speak()" value="Speak"></input>
+	</form>
+</section>
+
+<section>
+	<h2>Other</h2>
+	<h5>Open/Close the CD Drive.</h5>
+	<form>
+		<input class="w3-btn" type="button" onclick="cd(true)" value="Open"></input>
+		<input class="w3-btn" type="button" onclick="cd(false)" value="Close"></input>
+	</form>
+	<br/>
+	<h5>Turn on/off the device's monitor.</h5>
+	<form>
+		<input class="w3-btn" type="button" onclick="monitor(true)" value="On"></input>
+		<input class="w3-btn" type="button" onclick="monitor(false)" value="Off"></input>
+	</form>
+</section>
+
+</article>
+
+<footer class="footer w3-bottom w3-container w3-blue">By Cygnut :)</footer>
+</body>
+</html>
