@@ -4,7 +4,7 @@
 var HookshotClient =
 {
 	// Calls cb(null, data) on result, else cb(errorThrown) on error.
-	function _get(cb, path, qps) {
+	_get: function(cb, path, qps) {
 		var urlString = path + (qps ? "?" + qps : "");
 		
 		$.ajax({
@@ -17,9 +17,9 @@ var HookshotClient =
 		.fail(function(jqXHR, textStatus, errorThrown) {
 			cb(errorThrown);
 		});
-	}
+	},
 	
-	function _post(cb, url, data) {
+	_post: function(cb, url, data) {
 		$.ajax({
 			url: url,
 			processData: false,	// don't turn data into a query string put on the url.
@@ -32,9 +32,9 @@ var HookshotClient =
 		.fail(function(jqXHR, textStatus, errorThrown) {
 			cb(errorThrown);
 		});
-	}
+	},
 	
-	function _delete(cb, url) {
+	_delete: function(cb, url) {
 		$.ajax({
 			url: url,
 			type: "DELETE"
@@ -45,97 +45,97 @@ var HookshotClient =
 		.fail(function(jqXHR, textStatus, errorThrown) {
 			cb(errorThrown);
 		});
-	}
+	},
 	
 	
 	
 	api: function(cb) {
-		_get(cb, '/api');
+		this._get(cb, '/api');
 	},
 	
 	ping: function(cb, msg) {
-		_get(cb, '/ping', $.param({ 
+		this._get(cb, '/ping', $.param({ 
 			msg: msg 
 		}));
 	},
 	
 	screen: function(db) {
-		_get(cb, '/screen/now');
+		this._get(cb, '/screen/now');
 	},
 	
 	screenInfo: function(cb) {
-		_get(cb, '/screen/info');
+		this._get(cb, '/screen/info');
 	},
 	
 	osSchema: function(cb) {
-		_get(cb, '/os/schema');
+		this._get(cb, '/os/schema');
 	},
 	
 	os: function(cb) {
-		_get(cb, '/os/query');
+		this._get(cb, '/os/query');
 	},
 	
 	serviceSchema: function(cb) {
-		_get(cb, '/service/schema');
+		this._get(cb, '/service/schema');
 	},
 	
 	service: function(cb) {
-		_get(cb, '/service/query');
+		this._get(cb, '/service/query');
 	},
 	
 	sleep: function(cb) {
-		_post(cb, '/os/sleep');
+		this._post(cb, '/os/sleep');
 	},
 	
 	powerOff: function(cb) {
-		_post(cb, '/os/power-off');
+		this._post(cb, '/os/power-off');
 	},
 	
 	datasetsSchema: function(cb) {
-		_get(cb, '/datasets/schema');
+		this._get(cb, '/datasets/schema');
 	},
 	
 	dataset: function(cb, name, from, to) {
-		_get(cb, '/datasets/dataset/' + name, $.param({ 
+		this._get(cb, '/datasets/dataset/' + name, $.param({ 
 			from: from, 
 			to: to 
 		}));
 	},
 	
 	processes: function(cb) {
-		_get(cb, '/processes');
+		this._get(cb, '/processes');
 	},
 	
 	killProcess: function(cb, pid) {
-		_delete(cb, '/processes/' + pid);
+		this._delete(cb, '/processes/' + pid);
 	},
 	
 	drives: function(cb) {
-		_get(cb, '/filesystem/drives');
+		this._get(cb, '/filesystem/drives');
 	},
 	
 	files: function(cb, path) {
-		_get(cb, '/filesystem/files', $.param({ 
+		this._get(cb, '/filesystem/files', $.param({ 
 			path: path 
 		}));
 	},
 	
 	runFile: function(cb, path, args) {
-		_post(cb, '/filesystem/files/run', $.param({ 
+		this._post(cb, '/filesystem/files/run', $.param({ 
 			path: path, 
 			args: args 
 		}));
 	},
 	
 	beep: function(cb, frequency, duration) {
-		_post(cb, '/os/beep', $.param({ 
+		this._post(cb, '/os/beep', $.param({ 
 			frequency: frequency, 
 			duration: duration 
 		}));
 	},
 	
 	speak: function(cb, text, rate, volume) {
-		_post(cb, '/os/speak', $.param({ 
+		this._post(cb, '/os/speak', $.param({ 
 			text: text, 
 			rate: rate, 
 			volume: volume 
@@ -143,20 +143,20 @@ var HookshotClient =
 	},
 	
 	cdDrive: function(cb, open) {
-		_post(cb, '/os/cdrom', $.param({ 
+		this._post(cb, '/os/cdrom', $.param({ 
 			action: 
 			open ? 'open' : 'close' 
 		}));
 	},
 	
 	monitor: function(cb, on) {
-		_post(cb, '/os/monitor', $.param({ 
-			action: os ? 'on', 'off' 
+		this._post(cb, '/os/monitor', $.param({ 
+			action: os ? 'on' : 'off' 
 		}));
 	},
 	
 	changeSystemVolume: function(cb, volumeChange, component, device) {
-		_post(cb, '/os/changesysvolume', $.param({ 
+		this._post(cb, '/os/changesysvolume', $.param({ 
 			volumeChange: volumeChange, 
 			component: component, 
 			device: device 
@@ -164,7 +164,7 @@ var HookshotClient =
 	},
 	
 	muteSystemVolume: function(mute, component, device) {
-		_post(cb, '/os/mutesysvolume', $.param({ 
+		this._post(cb, '/os/mutesysvolume', $.param({ 
 			action: mute ? '1' : '0', 
 			component: component, 
 			deviceIndex: device 
@@ -172,7 +172,7 @@ var HookshotClient =
 	},
 	
 	changeAppVolume: function(process, volumeLevel, device) {
-		_post(cb, '/os/changeappvolume', $.param({ 
+		this._post(cb, '/os/changeappvolume', $.param({ 
 			process: process, 
 			volumeLevel: volumeLevel, 
 			deviceIndex: device 
@@ -180,7 +180,7 @@ var HookshotClient =
 	},
 	
 	muteAppVolume: function(process, mute, device) {
-		_post(cb, '/os/muteappvolume', $.param({ 
+		this._post(cb, '/os/muteappvolume', $.param({ 
 			process: process, 
 			action: mute ? '1' : '0', 
 			deviceIndex: device 
@@ -188,7 +188,7 @@ var HookshotClient =
 	},
 	
 	setSystemVolume: function(volumeLevel, component, device) {
-		_post(cb, '/os/setsysvolume', $.param({ 
+		this._post(cb, '/os/setsysvolume', $.param({ 
 			volumeLevel: volumeLevel, 
 			component: component, 
 			deviceIndex: device 
@@ -196,7 +196,7 @@ var HookshotClient =
 	},
 	
 	setAppVolume: function(process, volumeLevel, device) {
-		_post(cb, 'os/setappvolume', $.param({ 
+		this._post(cb, 'os/setappvolume', $.param({ 
 			process: process, 
 			volumeLevel: volumeLevel, 
 			deviceIndex: device 

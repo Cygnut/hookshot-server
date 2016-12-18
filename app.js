@@ -24,6 +24,8 @@ var app = express();
 // Templating:
 app.set('views', './views');
 app.set('view engine', 'pug');
+// Static files:
+app.use(express.static('public'));
 
 // Create controllers:
 var controllers = {
