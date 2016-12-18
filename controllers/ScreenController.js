@@ -60,6 +60,9 @@ function ScreenController(imagePath, period)
 	
 	this.now = function(req, res)
 	{
+		res.setHeader('Cache-Control', 'no-cache');
+		res.setHeader('Expires', 'Sat, 26 Jul 1997 05:00:00 GMT');
+		
 		res.sendFile(this.getInfo().imagePath, null, (err) => {
 			if (err)
 			{

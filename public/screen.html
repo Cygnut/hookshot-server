@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	
+	<script src="vendor/jquery-3.1.1.min.js"></script>
+	<script src="js/hookshot-client.js"></script>
+	
+	<link rel="stylesheet" href="vendor/w3.css">
+	<link rel="stylesheet" href="css/common.css">
+	
+	<title>Hookshot | Screen</title>
+	
+	<meta charset="UTF-8">
+	<meta name="description" content="Remote device administration and diagnostics.">
+	<meta name="keywords" content="Remote Access, Administration, Diagnostics">
+	<meta name="author" content="Cygnut">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<meta http-equiv="refresh" content="5">
+	
+	
+<style>
+img {
+	width: 100%;
+}
+</style>
+<script>
+
+$(document).ready(function() {
+	
+	$("#img h3").html($("#img h3").html() + new Date().toString());
+	
+});
+
+</script>
+</head>
+<body>
+
+<header class="header w3-top w3-container w3-blue">
+	<h1>Hookshot | Screen</h1>
+</header>
+
+<article>
+	<section id="img">
+		<h3>Captured at </h3>
+		<img src="screen/now" alt="Desktop" style="">
+	</section>
+</article>
+
+<footer class="footer w3-bottom w3-container w3-blue">By Cygnut :)</footer>
+</body>
+</html>
