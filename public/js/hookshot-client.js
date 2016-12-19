@@ -26,7 +26,6 @@ var HookshotClient =
 			url: urlString,
 			processData: false,	// don't turn data into a query string put on the url.
 			type: "POST",
-			data: data
 		})
 		.done(function(data, textStatus, jqXHR) {
 			cb(null, data);
