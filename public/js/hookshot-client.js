@@ -60,7 +60,7 @@ var HookshotClient =
 		}));
 	},
 	
-	screen: function(db) {
+	screen: function(cb) {
 		this._get(cb, '/screen/now');
 	},
 	
