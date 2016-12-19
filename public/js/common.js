@@ -18,3 +18,14 @@ function fadeRemoveErrorPanel(id)
 		$(this).remove(); 
 	});
 }
+
+var UIConversion = {
+	ByteUnits: [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ],
+	
+	FromBytes: function(bytes) {
+		if (bytes == 0) return '0 B';
+		var k = 1000; // or 1024 for binary
+		var i = Math.floor(Math.log(bytes) / Math.log(k));
+		return (bytes / Math.pow(k, i)).toFixed(3) + ' ' + this.ByteUnits[i];
+	}
+}

@@ -21,22 +21,62 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 <style>
+/* Modal styling */
+/* Background */
+.modal {
+	display: none; /* Hide it until we need it. */
+	position: fixed; z-index: 1; /* Sit fixed on top */
+	left: 0; top: 0; width: 100%; height: 100%; /* Cover everything */
+	
+	padding-top: 100px; /* Location of the box */
+	overflow: auto;
+	background-color: rgb(0,0,0); /* Fallback */
+	background-color: rgba(0,0,0,0.4); /* Greyish back */
+}
+
+/* Modal Content */
+.modal-content {
+	background-color: #fefefe;
+	margin: auto;
+	padding-top: 20px;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-bottom: 40px;
+	border: 1px solid #888;
+	width: 80%;
+	position: relative;	/* So we can put the x in the top right. */
+}
+
+/* Modal close button */
+.modal-close {
+	color: #aaaaaa;
+	position: absolute; top: 0; right: 20px; /* Put x in top right. right must match .modal-content padding. */
+	font-size: 28px;
+	font-weight: bold;
+}
+
+/* Make it clearer that the x is a button by changing it to a little handy when we're near it. */
+.modal-close:hover, .modal-close:focus {
+	cursor: pointer;
+}
+
+/* Make it obvious that you can click on rows. The selectors are tds as it's more reliable to access these than trs. */
+.process-row:hover td, .process-row:hover td {
+	cursor: pointer;
+	background-color: green;
+}
 
 
-
+article form, article h5 {
+	margin-left: 10px;
+}
+/*
+form input, p, h3, h4, h5 {
+	margin-left: 10px;
+}
+*/
 </style>
 <script>
-
-var UIConversion = {
-	ByteUnits: [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ],
-	
-	FromBytes: function(bytes) {
-		if (bytes == 0) return '0 B';
-		var k = 1000; // or 1024 for binary
-		var i = Math.floor(Math.log(bytes) / Math.log(k));
-		return (bytes / Math.pow(k, i)).toFixed(3) + ' ' + this.ByteUnits[i];
-	}
-}
 
 function updateProcesses()
 {
@@ -58,14 +98,35 @@ function updateProcesses()
 			if (!$("#error").length)
 			{
 				$("#processes-table")
-					.before(createErrorPanelHtml("error", "Error", "Failed to get " + source + " information."));
+					.before(createErrorPanelHtml("processTableError", "Error", "Failed to get " + source + " information."));
 			}
 		}
 		else
 		{
-			fadeRemoveErrorPanel("error");
+			fadeRemoveErrorPanel("processTableError");
 			
 			$.each(data.processes, function(i, v) {
+				
+				var title = v.imageName + " (" + v.pid + ")";
+				
+				var row = 
+					"<tr class='process-row' id='" + "process-" + v.pid + "'>" + 
+					"<td>" + title + "</td>" + 
+					"<td>" + UIConversion.FromBytes(v.memUsage) + "</td>" +
+					"<td>" + v.cpuTime + "</td>" +
+					"</tr>";
+				
+				$(row)
+					.data({ title: title, pid: v.pid, name: v.imageName })
+					.appendTo('#processes-table')
+					.click(function() {
+						showModal(
+							$(this).data()
+						);
+					});
+				
+				
+				/*
 				$("#processes-table").append(
 					"<tr id='" + "process-" + v.pid + "'>" + 
 					"<td>" + v.imageName + " (" + v.pid + ")" + "</td>" + 
@@ -73,6 +134,8 @@ function updateProcesses()
 					"<td>" + v.cpuTime + "</td>" +
 					"</tr>"
 				);
+				*/
+				
 			});
 		}
 		
@@ -85,6 +148,60 @@ $(document).ready(function() {
 	updateProcesses();
 });
 
+function showModal(process) {
+	// Make the modal overlay visible.
+	$(".modal").css('display', 'block')
+	
+	// Pass the data along.
+	$(".modal-content").data(process);
+	
+	$(".modal-title").html(process.title);
+	
+}
+
+function hideModal() {
+	$(".modal").css('display', 'none');
+}
+
+function killProcess(btn) {
+	var pid = $(".modal-content").data().pid;
+	
+	HookshotClient.killProcess(function(err, data) {
+		if (err) {
+			// TODO: Display error at some point.
+		}
+	},
+	pid);
+	
+	hideModal();
+}
+
+function appvol() {
+	var pid = $(".modal-content").data().pid;
+	
+	HookshotClient.setAppVolume(function(err) {
+		if (err) {
+			// TODO: Display error at some point.
+		}
+	},
+	'/' + pid,
+	$("#appvol-volume").val()
+	);
+}
+
+function mute(m) {
+	var pid = $(".modal-content").data().pid;
+	
+	HookshotClient.muteAppVolume(function(err) {
+		if (err) {
+			// TODO: Display error at some point.
+		}
+	},
+	'/' + pid,
+	m
+	);
+}
+
 </script>
 </head>
 <body>
@@ -95,6 +212,34 @@ $(document).ready(function() {
 	</a>
 	<h1>Hookshot | Processes</h1>
 </header>
+
+<!-- Modal overlay -->
+<div class="modal"/>
+	<article class="modal-content">
+		<span onclick="hideModal()" class="modal-close">x</span>
+		<h3 class="modal-title"></h3> <!-- Process Name -->
+		
+		<h5>Kill the process.</h5>
+		<form>
+			<input class="w3-btn" type="button" onclick="killProcess(this)" value="Kill"></input>
+		</form>
+		<br/>
+		<h5>Change the process volume.</h5>
+		<form>
+			<p>Volume</p>
+			<input type="range" id="appvol-volume" min="0" max="1" value="0.5" step="0.01"></input><br/>
+			<!--<input type="number" id="appvol-volume" min="0" max="1" value="1" step="0.01"></input><br/>-->
+			<br/>
+			<input class="w3-btn" type="button" onclick="appvol()" value="Set Volume"></input>
+		</form>
+		<br/>
+		<h5>Mute the process volume.</h5>
+		<form>
+			<input class="w3-btn" type="button" onclick="mute(true)" value="Mute"></input>
+			<input class="w3-btn" type="button" onclick="mute(false)" value="Unmute"></input>
+		</form>
+	</article>
+</div>
 
 <article>
 <table id="processes-table" class="w3-table-all"></table>
