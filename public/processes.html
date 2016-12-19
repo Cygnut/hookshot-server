@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	
+	<script src="vendor/jquery-3.1.1.min.js"></script>
+	<script src="js/common.js"></script>
+	<script src="js/hookshot-client.js"></script>
+	
+	<link rel="shortcut icon" href="images/HookshotIcon-64x64-Transparent.png" />
+	<link rel="stylesheet" href="vendor/w3.css">
+	<link rel="stylesheet" href="css/common.css">
+	
+	<title>Hookshot | Processes</title>
+	
+	<meta charset="UTF-8">
+	<meta name="description" content="Remote device administration and diagnostics.">
+	<meta name="keywords" content="Remote Access, Administration, Diagnostics">
+	<meta name="author" content="Cygnut">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+<style>
+
+
+
+</style>
+<script>
+
+var UIConversion = {
+	ByteUnits: [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ],
+	
+	FromBytes: function(bytes) {
+		if (bytes == 0) return '0 B';
+		var k = 1000; // or 1024 for binary
+		var i = Math.floor(Math.log(bytes) / Math.log(k));
+		return (bytes / Math.pow(k, i)).toFixed(3) + ' ' + this.ByteUnits[i];
+	}
+}
+
+function updateProcesses()
+{
+	HookshotClient.processes(function(err, data) {
+		
+		// Update the table.
+		$("#processes-table").empty();
+		$("#processes-table").append(
+			"<tr>" + 
+			"<th>Name</th>" + 
+			"<th>Memory Usage</th>" +
+			"<th>CPU Time</th>" +
+			"</tr>"
+		);
+		
+		if (err)
+		{
+			// Show the alert panel if there's been an error.
+			if (!$("#error").length)
+			{
+				$("#processes-table")
+					.before(createErrorPanelHtml("error", "Error", "Failed to get " + source + " information."));
+			}
+		}
+		else
+		{
+			fadeRemoveErrorPanel("error");
+			
+			$.each(data.processes, function(i, v) {
+				$("#processes-table").append(
+					"<tr id='" + "process-" + v.pid + "'>" + 
+					"<td>" + v.imageName + " (" + v.pid + ")" + "</td>" + 
+					"<td>" + UIConversion.FromBytes(v.memUsage) + "</td>" +
+					"<td>" + v.cpuTime + "</td>" +
+					"</tr>"
+				);
+			});
+		}
+		
+		setTimeout(updateProcesses, 3000);
+	});
+}
+
+$(document).ready(function() {
+	
+	updateProcesses();
+});
+
+</script>
+</head>
+<body>
+
+<header class="header w3-top w3-container w3-blue">
+	<a title="Home" href="index.html">
+		<img src="images/HookshotIcon-100x100-Transparent.png" />
+	</a>
+	<h1>Hookshot | Processes</h1>
+</header>
+
+<article>
+<table id="processes-table" class="w3-table-all"></table>
+</article>
+
+<footer class="footer w3-bottom w3-container w3-blue">By Cygnut :)</footer>
+</body>
+</html>
