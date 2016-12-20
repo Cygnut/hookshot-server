@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	
+	<script src="vendor/jquery-3.1.1.min.js"></script>
+	<script src="js/common.js"></script>
+	<script src="js/hookshot-client.js"></script>
+	
+	<link rel="shortcut icon" href="images/HookshotIcon-64x64-Transparent.png" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="vendor/w3.css">
+	<link rel="stylesheet" href="css/common.css">
+	<link rel="stylesheet" href="css/modal.css">
+	
+	<title>Hookshot | File Browser</title>
+	
+	<meta charset="UTF-8">
+	<meta name="description" content="Remote device administration and diagnostics.">
+	<meta name="keywords" content="Remote Access, Administration, Diagnostics">
+	<meta name="author" content="Cygnut">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+<style>
+/* Make it obvious that you can click on rows. The selectors are tds as it's more reliable to access these than trs. */
+.clickable-row:hover td, .clickable-row:hover td {
+	cursor: pointer;
+	background-color: green;
+}
+
+article form, article h5 {
+	margin-left: 10px;
+}
+</style>
+<script>
+
+function showFiles(path) {
+	
+	function addFilesRow(data)
+	{
+		var img = (data.type === "file") ? "fa-file" : "fa-folder-open";
+		
+		var row = 
+			"<tr>" + 
+			"<td>" + 
+			"<i class='fa " + img + "' style='font-size:24px;'></i>" + 
+			"</td>" + 
+			"<td>" + data.name + "</td>" +
+			"</tr>";
+		
+		var r = $(row)
+			.data({ name: data.name, type: data.type, path: data.path })
+			.appendTo('#files-table')
+			.toggleClass('clickable-row')
+			.click(function() {
+				var data = $(this).data();
+				
+				if (data.type === "file")
+				{
+					showModal(
+						$(this).data()
+					);
+				}
+				else
+				{
+					showFiles(data.path);
+				}
+			});
+	}
+	
+	function compareFiles(a, b) {
+		
+		// First sort by section if these are different:
+		if (a.type != b.type)
+		{
+			if (a.type == "file") return 1;
+			else return -1;
+		}
+		
+		// If not, sort by text:
+		return a.name.localeCompare(b.name);
+	}
+	
+	// Display the content at the path.
+	HookshotClient.files(function(err, data) {
+		
+		// Define the table.
+		$("#files-table").empty();
+		$("#files-table").append(
+			"<tr>" + 
+			"<th></th>" + 
+			"<th>Name</th>" + 
+			"</tr>"
+		);
+		addFilesRow({
+			name: "..",
+			type: "dir",
+			path: path + '\\..',
+		});
+		
+		if (err) {
+			// TODO: Display this error later.
+			return;
+		}
+		else
+		{
+			// Display the current path.
+			$("#files-path").html(data.path);
+			
+			data.files = data.files.filter(function(v) {
+				return $.inArray(v, [ 'file', 'dir' ]);
+			});
+			
+			data.files = data.files.sort(compareFiles);
+			
+			$.each(data.files, function(i, v) {
+				
+				if (v.type === "file" || v.type === "dir")
+					addFilesRow(v);
+			});
+		}
+		
+	}, path);
+}
+
+function showDrives() {
+	
+	HookshotClient.drives(function(err, data) {
+		
+		// Define the table.
+		$("#drives-table").empty();
+		$("#drives-table").append(
+			"<tr>" + 
+			"<th>Drive</th>" + 
+			"<th>Name</th>" + 
+			"</tr>"
+		);
+		
+		if (err) {
+			// TODO: Handle errors.
+			return;
+		}
+		
+			$.each(data.drives, function(i, v) {
+				
+				var row = 
+					"<tr class='clickable-row'>" + 
+					"<td>" + v.name + "</td>" +
+					"<td>" + v.volumeName + "</td>" +
+					"</tr>";
+				
+				$(row)
+					.data({
+						drive: v.name,
+						name: v.volumeName,
+						path: v.name + '\\',
+					})
+					.appendTo('#drives-table')
+					.click(function() {
+						showFiles($(this).data().path);
+					});
+				
+			});
+		
+		
+	});
+}
+
+$(document).ready(function() {
+	
+	showDrives()
+});
+
+function showModal(file) {
+	// Make the modal overlay visible.
+	$(".modal").css('display', 'block')
+	
+	// Pass the data along.
+	$(".modal-content").data(file);
+	
+	$(".modal-title").html(file.name);
+	
+}
+
+function hideModal() {
+	$(".modal").css('display', 'none');
+}
+
+function runFile() {
+	var path = $(".modal-content").data().path;
+	
+	HookshotClient.runFile(function(err) {
+		if (err) {
+			// TODO: Display error at some point.
+		}
+	},
+	path
+	);
+	
+	hideModal();
+}
+
+</script>
+</head>
+<body>
+
+<header class="header w3-top w3-container w3-blue">
+	<a title="Home" href="index.html">
+		<img src="images/HookshotIcon-100x100-Transparent.png" />
+	</a>
+	<h1>Hookshot | File Browser</h1>
+</header>
+
+<!-- Modal overlay -->
+<div class="modal"/>
+	<article class="modal-content">
+		<span onclick="hideModal()" class="modal-close">x</span>
+		<h3 class="modal-title"></h3> <!-- File Name -->
+		
+		<h5>Run the file.</h5>
+		<form>
+			<input class="w3-btn" type="button" onclick="runFile(this)" value="Run"></input>
+		</form>
+	</article>
+</div>
+
+<article>
+	<section>
+		<h3>Drives</h3>
+		<table id="drives-table" class="w3-table-all"></table>
+	</section>
+	<section>
+		<h3>Files</h3>
+		<h4 id="files-path"></h4>
+		<table id="files-table" class="w3-table-all"></table>
+	</section>
+</article>
+
+<footer class="footer w3-bottom w3-container w3-blue">By Cygnut :)</footer>
+</body>
+</html>

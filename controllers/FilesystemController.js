@@ -125,9 +125,12 @@ function FilesystemController()
 		else return res.json(this.cachedDrives);
 	}
 	
-	function createFilesResult(files)
+	function createFilesResult(dir, files)
 	{
-		return { files: files || [] };
+		return { 
+			path: path.normalize(dir),
+			files: files || []
+			};
 	}
 	
 	this.files = function(req, res)
@@ -138,7 +141,7 @@ function FilesystemController()
 			if (err)
 			{
 				log.warn(`Failed to get directory information for ${dir} with error ${err}`);
-				return res.status(500).json(createFilesResult(null));
+				return res.status(500).json(createFilesResult(dir, null));
 			}
 			
 			async.map(
@@ -158,7 +161,7 @@ function FilesystemController()
 					if (er)
 					{
 						log.warn(`Failed to get directory stats for ${dir} with error ${er}`);
-						return res.status(500).json(createFilesResult(null));
+						return res.status(500).json(createFilesResult(dir, null));
 					}
 					
 					var data = results.map(function(r) {
@@ -179,7 +182,7 @@ function FilesystemController()
 						return item;
 					});
 					
-					return res.json(createFilesResult(data));
+					return res.json(createFilesResult(dir, data));
 				});
 		});
 	}
