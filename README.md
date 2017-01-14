@@ -1,5 +1,5 @@
 # hookshot-server
-Node.js web app providing remote access to the device it is hosted on. The API is fully consumed by the Hookshot.Client phone app, but there is current effort to provide a HTML client. 
+NodeJs web app providing remote access to the device it is hosted on. The API is fully consumed by the Hookshot.Client phone app, but there is current effort to provide a HTML client. 
 
 The aim of this solution is to:
 * Be easy to install.
