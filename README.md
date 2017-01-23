@@ -1,3 +1,4 @@
+![hookshot-server icon](https://github.com/Cygnut/hookshot-server/blob/master/public/images/HookshotIcon-64x64-Transparent.png)
 # hookshot-server
 NodeJs web app providing remote access to the device it is hosted on. The API is fully consumed by the Hookshot.Client phone app, but there is current effort to provide a HTML client. 
 
