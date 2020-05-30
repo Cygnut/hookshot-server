@@ -1,138 +1,138 @@
 <!DOCTYPE html>
 <html>
 <head>
-	
-	
-	<script src="vendor/jquery-3.1.1.min.js"></script>
-	<script src="vendor/chart-2.4.0.min.js"></script>
-	<script src="js/hookshot-client.js"></script>
-	
-	<link rel="shortcut icon" href="images/HookshotIcon-64x64-Transparent.png" />
-	<link rel="stylesheet" href="vendor/w3.css">
-	<link rel="stylesheet" href="css/common.css">
-	
-	<title>Hookshot | Performance</title>
-	
-	<meta charset="UTF-8">
-	<meta name="description" content="Remote device administration and diagnostics.">
-	<meta name="keywords" content="Remote Access, Administration, Diagnostics">
-	<meta name="author" content="Cygnut">
-	
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	
+    
+    
+    <script src="vendor/jquery-3.1.1.min.js"></script>
+    <script src="vendor/chart-2.4.0.min.js"></script>
+    <script src="js/hookshot-client.js"></script>
+    
+    <link rel="shortcut icon" href="images/HookshotIcon-64x64-Transparent.png" />
+    <link rel="stylesheet" href="vendor/w3.css">
+    <link rel="stylesheet" href="css/common.css">
+    
+    <title>Hookshot | Performance</title>
+    
+    <meta charset="UTF-8">
+    <meta name="description" content="Remote device administration and diagnostics.">
+    <meta name="keywords" content="Remote Access, Administration, Diagnostics">
+    <meta name="author" content="Cygnut">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
 <style>
 </style>
 <script>
 
 $(function() {
-	
-	// Resize the canvas?
-	//$('#dataset-canvas')
-	//	.attr('width', window.innerWidth);
-	//	.attr('height', window.innerHeight);
-	
-	HookshotClient.datasetsSchema(function(err, data) {
-		if (err) {
-			// TODO: Handle errors.
-			return;
-		}
-		
-		$.each(data.datasets, function(i, v) {
-			
-			$("<option value=" + v.name + ">" + v.name + "</option>")
-				.appendTo('#dataset-select')
-				.data(v);
-		});
-		
-		onSelectDataset(data.datasets[0]);
-	});
-	
+    
+    // Resize the canvas?
+    //$('#dataset-canvas')
+    //    .attr('width', window.innerWidth);
+    //    .attr('height', window.innerHeight);
+    
+    HookshotClient.datasetsSchema(function(err, data) {
+        if (err) {
+            // TODO: Handle errors.
+            return;
+        }
+        
+        $.each(data.datasets, function(i, v) {
+            
+            $("<option value=" + v.name + ">" + v.name + "</option>")
+                .appendTo('#dataset-select')
+                .data(v);
+        });
+        
+        onSelectDataset(data.datasets[0]);
+    });
+    
 });
 
 function selectDataset() {
-	var data = $('#dataset-select').find(":selected").data();
-	onSelectDataset(data);
+    var data = $('#dataset-select').find(":selected").data();
+    onSelectDataset(data);
 }
 
 function onSelectDataset(dataset) {
-	HookshotClient.dataset(function(err, data) {
-		
-		if (err) {
-			// TODO: Handle errors!
-		}
-		
-		data.dataset = data.dataset.map(function(d) {
-			return transformDatapoint(d, dataset.timestampOffset);
-		});
-		
-		renderChart(dataset.name, data.dataset);
-	}, 
-	dataset.name);
+    HookshotClient.dataset(function(err, data) {
+        
+        if (err) {
+            // TODO: Handle errors!
+        }
+        
+        data.dataset = data.dataset.map(function(d) {
+            return transformDatapoint(d, dataset.timestampOffset);
+        });
+        
+        renderChart(dataset.name, data.dataset);
+    }, 
+    dataset.name);
 }
 
 function transformDatapoint(dp, timestampOffset) {
-	dp.timestamp = dp.timestamp - timestampOffset;
-	// For now, everything's a byte value and should be converted to MB:
-	//dp.value = dp.value / Math.pow(10, 3 * 3);
-	return dp;
+    dp.timestamp = dp.timestamp - timestampOffset;
+    // For now, everything's a byte value and should be converted to MB:
+    //dp.value = dp.value / Math.pow(10, 3 * 3);
+    return dp;
 }
 
 
 Array.prototype.min = function() {
-	return Math.min.apply(null, this);
+    return Math.min.apply(null, this);
 };
 
 Array.prototype.max = function() {
-	return Math.max.apply(null, this);
+    return Math.max.apply(null, this);
 };
 
 function normalize(dataset) {
-	var min = dataset.min();
-	var max = dataset.max();
-	var range = max - min;
-	
-	return dataset.map(function(d) {
-		return (d - min) / range;
-	});
+    var min = dataset.min();
+    var max = dataset.max();
+    var range = max - min;
+    
+    return dataset.map(function(d) {
+        return (d - min) / range;
+    });
 }
 
 
 
 
 function renderChart(name, dataset) {
-	
-	var xs = normalize(dataset.map(function(d) {
-		return d.timestamp;
-	}));
-	
-	var ys = normalize(dataset.map(function(d) {
-		return d.value;
-	}));
-	
-	var xys = xs.map(function(x, i) {
-		return {
-			x: x,
-			y: ys[i]
-		};
-	});
-	
-	var scatterChart = new Chart($("#dataset-canvas"), {
-		type: 'line',
-		data: {
-			datasets: [{
-				label: name,
-				data: xys
-			}]
-		},
-		options: {
-			scales: {
-				xAxes: [{
-					type: 'linear',
-					position: 'bottom'
-				}]
-			}
-		}
-	});
+    
+    var xs = normalize(dataset.map(function(d) {
+        return d.timestamp;
+    }));
+    
+    var ys = normalize(dataset.map(function(d) {
+        return d.value;
+    }));
+    
+    var xys = xs.map(function(x, i) {
+        return {
+            x: x,
+            y: ys[i]
+        };
+    });
+    
+    var scatterChart = new Chart($("#dataset-canvas"), {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: name,
+                data: xys
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    type: 'linear',
+                    position: 'bottom'
+                }]
+            }
+        }
+    });
 }
 
 </script>
@@ -140,10 +140,10 @@ function renderChart(name, dataset) {
 <body>
 
 <header class="header w3-top w3-container w3-blue">
-	<a title="Home" href="index.html">
-		<img src="images/HookshotIcon-100x100-Transparent.png" />
-	</a>
-	<h1>Hookshot | Performance</h1>
+    <a title="Home" href="index.html">
+        <img src="images/HookshotIcon-100x100-Transparent.png" />
+    </a>
+    <h1>Hookshot | Performance</h1>
 </header>
 
 <article>

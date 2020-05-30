@@ -1,149 +1,149 @@
 <!DOCTYPE html>
 <html>
 <head>
-	
-	
-	<script src="vendor/jquery-3.1.1.min.js"></script>
-	<script src="js/common.js"></script>
-	<script src="js/hookshot-client.js"></script>
-	
-	<link rel="shortcut icon" href="images/HookshotIcon-64x64-Transparent.png" />
-	<link rel="stylesheet" href="vendor/w3.css">
-	<link rel="stylesheet" href="css/common.css">
-	<link rel="stylesheet" href="css/modal.css">
-	
-	<title>Hookshot | Processes</title>
-	
-	<meta charset="UTF-8">
-	<meta name="description" content="Remote device administration and diagnostics.">
-	<meta name="keywords" content="Remote Access, Administration, Diagnostics">
-	<meta name="author" content="Cygnut">
-	
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	
+    
+    
+    <script src="vendor/jquery-3.1.1.min.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/hookshot-client.js"></script>
+    
+    <link rel="shortcut icon" href="images/HookshotIcon-64x64-Transparent.png" />
+    <link rel="stylesheet" href="vendor/w3.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/modal.css">
+    
+    <title>Hookshot | Processes</title>
+    
+    <meta charset="UTF-8">
+    <meta name="description" content="Remote device administration and diagnostics.">
+    <meta name="keywords" content="Remote Access, Administration, Diagnostics">
+    <meta name="author" content="Cygnut">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
 <style>
 /* Make it obvious that you can click on rows. The selectors are tds as it's more reliable to access these than trs. */
 .process-row:hover td, .process-row:hover td {
-	cursor: pointer;
-	background-color: green;
+    cursor: pointer;
+    background-color: green;
 }
 
 article form, article h5 {
-	margin-left: 10px;
+    margin-left: 10px;
 }
 </style>
 <script>
 
 function updateProcesses()
 {
-	HookshotClient.processes(function(err, data) {
-		
-		// Update the table.
-		$("#processes-table").empty();
-		$("#processes-table").append(
-			"<tr>" + 
-			"<th>Name</th>" + 
-			"<th>Memory Usage</th>" +
-			"<th>CPU Time</th>" +
-			"</tr>"
-		);
-		
-		if (err)
-		{
-			// Show the alert panel if there's been an error.
-			if (!$("#error").length)
-			{
-				$("#processes-table")
-					.before(createErrorPanelHtml("processTableError", "Error", "Failed to get " + source + " information."));
-			}
-		}
-		else
-		{
-			fadeRemoveErrorPanel("processTableError");
-			
-			$.each(data.processes, function(i, v) {
-				
-				var title = v.imageName + " (" + v.pid + ")";
-				
-				var row = 
-					"<tr class='process-row' id='" + "process-" + v.pid + "'>" + 
-					"<td>" + title + "</td>" + 
-					"<td>" + UIConversion.FromBytes(v.memUsage) + "</td>" +
-					"<td>" + v.cpuTime + "</td>" +
-					"</tr>";
-				
-				$(row)
-					.data({ title: title, pid: v.pid, name: v.imageName })
-					.appendTo('#processes-table')
-					.click(function() {
-						showModal(
-							$(this).data()
-						);
-					});
-			});
-		}
-		
-		setTimeout(updateProcesses, 3000);
-	});
+    HookshotClient.processes(function(err, data) {
+        
+        // Update the table.
+        $("#processes-table").empty();
+        $("#processes-table").append(
+            "<tr>" + 
+            "<th>Name</th>" + 
+            "<th>Memory Usage</th>" +
+            "<th>CPU Time</th>" +
+            "</tr>"
+        );
+        
+        if (err)
+        {
+            // Show the alert panel if there's been an error.
+            if (!$("#error").length)
+            {
+                $("#processes-table")
+                    .before(createErrorPanelHtml("processTableError", "Error", "Failed to get " + source + " information."));
+            }
+        }
+        else
+        {
+            fadeRemoveErrorPanel("processTableError");
+            
+            $.each(data.processes, function(i, v) {
+                
+                var title = v.imageName + " (" + v.pid + ")";
+                
+                var row = 
+                    "<tr class='process-row' id='" + "process-" + v.pid + "'>" + 
+                    "<td>" + title + "</td>" + 
+                    "<td>" + UIConversion.FromBytes(v.memUsage) + "</td>" +
+                    "<td>" + v.cpuTime + "</td>" +
+                    "</tr>";
+                
+                $(row)
+                    .data({ title: title, pid: v.pid, name: v.imageName })
+                    .appendTo('#processes-table')
+                    .click(function() {
+                        showModal(
+                            $(this).data()
+                        );
+                    });
+            });
+        }
+        
+        setTimeout(updateProcesses, 3000);
+    });
 }
 
 $(function() {
-	
-	updateProcesses();
+    
+    updateProcesses();
 });
 
 function showModal(process) {
-	// Make the modal overlay visible.
-	$(".modal").css('display', 'block')
-	
-	// Pass the data along.
-	$(".modal-content").data(process);
-	
-	$(".modal-title").html(process.title);
-	
+    // Make the modal overlay visible.
+    $(".modal").css('display', 'block')
+    
+    // Pass the data along.
+    $(".modal-content").data(process);
+    
+    $(".modal-title").html(process.title);
+    
 }
 
 function hideModal() {
-	$(".modal").css('display', 'none');
+    $(".modal").css('display', 'none');
 }
 
 function killProcess(btn) {
-	var pid = $(".modal-content").data().pid;
-	
-	HookshotClient.killProcess(function(err, data) {
-		if (err) {
-			// TODO: Display error at some point.
-		}
-	},
-	pid);
-	
-	hideModal();
+    var pid = $(".modal-content").data().pid;
+    
+    HookshotClient.killProcess(function(err, data) {
+        if (err) {
+            // TODO: Display error at some point.
+        }
+    },
+    pid);
+    
+    hideModal();
 }
 
 function appvol() {
-	var pid = $(".modal-content").data().pid;
-	
-	HookshotClient.setAppVolume(function(err) {
-		if (err) {
-			// TODO: Display error at some point.
-		}
-	},
-	'/' + pid,
-	$("#appvol-volume").val()
-	);
+    var pid = $(".modal-content").data().pid;
+    
+    HookshotClient.setAppVolume(function(err) {
+        if (err) {
+            // TODO: Display error at some point.
+        }
+    },
+    '/' + pid,
+    $("#appvol-volume").val()
+    );
 }
 
 function mute(m) {
-	var pid = $(".modal-content").data().pid;
-	
-	HookshotClient.muteAppVolume(function(err) {
-		if (err) {
-			// TODO: Display error at some point.
-		}
-	},
-	'/' + pid,
-	m
-	);
+    var pid = $(".modal-content").data().pid;
+    
+    HookshotClient.muteAppVolume(function(err) {
+        if (err) {
+            // TODO: Display error at some point.
+        }
+    },
+    '/' + pid,
+    m
+    );
 }
 
 </script>
@@ -151,38 +151,38 @@ function mute(m) {
 <body>
 
 <header class="header w3-top w3-container w3-blue">
-	<a title="Home" href="index.html">
-		<img src="images/HookshotIcon-100x100-Transparent.png" />
-	</a>
-	<h1>Hookshot | Processes</h1>
+    <a title="Home" href="index.html">
+        <img src="images/HookshotIcon-100x100-Transparent.png" />
+    </a>
+    <h1>Hookshot | Processes</h1>
 </header>
 
 <!-- Modal overlay -->
 <div class="modal"/>
-	<article class="modal-content">
-		<span onclick="hideModal()" class="modal-close">x</span>
-		<h3 class="modal-title"></h3> <!-- Process Name -->
-		
-		<h5>Kill the process.</h5>
-		<form>
-			<input class="w3-btn" type="button" onclick="killProcess(this)" value="Kill"></input>
-		</form>
-		<br/>
-		<h5>Change the process volume.</h5>
-		<form>
-			<p>Volume</p>
-			<input type="range" id="appvol-volume" min="0" max="1" value="0.5" step="0.01"></input><br/>
-			<!--<input type="number" id="appvol-volume" min="0" max="1" value="1" step="0.01"></input><br/>-->
-			<br/>
-			<input class="w3-btn" type="button" onclick="appvol()" value="Set Volume"></input>
-		</form>
-		<br/>
-		<h5>Mute the process volume.</h5>
-		<form>
-			<input class="w3-btn" type="button" onclick="mute(true)" value="Mute"></input>
-			<input class="w3-btn" type="button" onclick="mute(false)" value="Unmute"></input>
-		</form>
-	</article>
+    <article class="modal-content">
+        <span onclick="hideModal()" class="modal-close">x</span>
+        <h3 class="modal-title"></h3> <!-- Process Name -->
+        
+        <h5>Kill the process.</h5>
+        <form>
+            <input class="w3-btn" type="button" onclick="killProcess(this)" value="Kill"></input>
+        </form>
+        <br/>
+        <h5>Change the process volume.</h5>
+        <form>
+            <p>Volume</p>
+            <input type="range" id="appvol-volume" min="0" max="1" value="0.5" step="0.01"></input><br/>
+            <!--<input type="number" id="appvol-volume" min="0" max="1" value="1" step="0.01"></input><br/>-->
+            <br/>
+            <input class="w3-btn" type="button" onclick="appvol()" value="Set Volume"></input>
+        </form>
+        <br/>
+        <h5>Mute the process volume.</h5>
+        <form>
+            <input class="w3-btn" type="button" onclick="mute(true)" value="Mute"></input>
+            <input class="w3-btn" type="button" onclick="mute(false)" value="Unmute"></input>
+        </form>
+    </article>
 </div>
 
 <article>

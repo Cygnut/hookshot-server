@@ -3,17 +3,17 @@ Don't need to copy node_modules.
 Ensure nodejs installed.
 Run npm install to install all local dependencies present in project.json
 Install global dependencies:
-	npm install pm2 -g
-	npm install pm2-windows-startup -g
+    npm install pm2 -g
+    npm install pm2-windows-startup -g
 Tell pm2 to automatically run and resurrect (i.e. bring all registered processes online) when Windows starts:
-	pm2-startup install
-	(This just places a batch file essentially in the user startup folder to run pm2 resurrect)
+    pm2-startup install
+    (This just places a batch file essentially in the user startup folder to run pm2 resurrect)
 Run the app through pm2:
-	pm2 start app.js
+    pm2 start app.js
 Then make pm2 look after it persistently through server restarts
-	pm2 save
+    pm2 save
 
 Notes:
-	So - the web server is being run as an application - not as windows service.
+    So - the web server is being run as an application - not as windows service.
 
 
